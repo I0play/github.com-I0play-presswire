@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your cheap USB-C brick is lying to you — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 2, 2026 · Electronics · ~8 minute read</p>
+    <h1>Your cheap USB-C brick is lying to you. Here is how PD actually works.</h1>
+    <p>USB-C looks simple because the connector is one shape. The power side is not simple. A laptop that wants 20 V, a phone that wants PPS, and a $9 Amazon brick that only ever wanted to dump 5 V into whatever you plugged in are all using the same hole in the wall. The difference is whether anything on the CC pin is telling the truth.</p>
+    <p>If you build gadgets, repair phones, or just keep buying chargers that get hot and die, you need the handshake, not the marketing sticker.</p>
+    <h2>The connector is not the protocol</h2>
+    <p>USB Type-C is the mechanical and electrical pinout. USB Power Delivery is a separate conversation that rides on the <strong>CC</strong> (Configuration Channel) wire. Data lines can be dead. You can have a perfectly valid high-power sink that never speaks USB data. That is why a power-only trigger board can pull 20 V out of a charger with no computer attached.</p>
+    <p>On attach, the source starts at a safe baseline: about 5 V on VBUS. Then it advertises a menu. That menu is a list of Power Data Objects (PDOs). A typical 65 W laptop brick says something like 5 V at 3 A, 9 V at 3 A, 15 V at 3 A, and 20 V at 3.25 A.</p>
+    <p>Your device picks one, the charger Accepts, ramps VBUS, then sends PS_RDY when the rail is actually there. Until PS_RDY, you do not have the contract. Cheap hardware skips steps, lies about current, or never implements the cable e-marker check that is required before going past 3 A.</p>
+    <h2>Fixed PDOs vs PPS vs the high-voltage stuff</h2>
+    <p><strong>Fixed PDOs</strong> are the old reliable stairs: 5, 9, 15, 20 V in the Standard Power Range (up to 100 W). Easy for a buck converter. Ugly for a lithium cell that lives at 3.7–4.4 V, because the phone has to slam that 9 V down and turn the difference into heat in your pocket.</p>
+    <p><strong>PPS</strong> (Programmable Power Supply) is the feature phones actually want. The sink can request a voltage in 20 mV steps inside an advertised window, plus a current limit. Charge circuitry can sit closer to the cell voltage, run cooler, and finish faster. If a box says Super Fast Charging and your phone still cooks, the brick probably advertised fixed 9 V and called it a day.</p>
+    <p><strong>EPR</strong> (Extended Power Range) is the 28 / 36 / 48 V world that takes you toward 240 W. Different message types, stricter cables, and not something you casually feed into a hobby buck module rated for 24 V.</p>
+    <h2>The cable is part of the circuit</h2>
+    <p>Above 3 A the source is supposed to ask the cable who it is. An e-marked 5 A cable answers. A no-name cable with a printed 100W logo and no chip should force the source to stay conservative. Voltage drop on skinny copper is not academic. At 5 A, a few hundred milliohms becomes heat in the jacket and brownout at the laptop. If a cable is too hot to hold, throw it out.</p>
+    <h2>How to test a charger</h2>
+    <ol>
+      <li>Read the label. Count the PDOs. If it only lists 5 V / 9 V and claims 65 W, the math is already a lie.</li>
+      <li>Use a USB-C power meter that understands PD. Plug charger to meter to known-good cable to device or load.</li>
+      <li>Watch the contract, not just the watts. You want the voltage the device requested, not a sagging 4.6 V while the screen claims 20 W.</li>
+      <li>Load it. A charger that holds 20.0 V at 100 mA and collapses to 17 V at 2 A is junk. So is one that smells like burnt flux after ten minutes.</li>
+      <li>Unplug and replug in both orientations. Flaky one-way attach is a broken receptacle or a bent pin.</li>
+    </ol>
+    <p>If you design boards: start at 5 V, confirm both orientations, then request a conservative PDO before you ask for 20 V. Instrument VBUS during plug, unplug, and load steps.</p>
+    <h2>Trigger boards and the ways people get hurt</h2>
+    <p>PD trigger modules that request a fixed 12 V or 20 V are useful on the bench. They are also a great way to feed 20 V into a 5 V ESP32 because you grabbed the wrong adapter. Label the output. Fuse the output. Assume you will plug it in half-asleep.</p>
+    <p>If you build a sink, implement the state machine or use a real controller. Do not just short CC with a resistor and pray. That old Rp/Rd trick only gets you Type-C default current at 5 V. It is not PD. It will not give you 20 V.</p>
+    <h2>What to buy, what to bin</h2>
+    <p>Keep one known-good brick and one known-good e-marked cable as your reference. Bin anything with no safety marks, a hollow-toy weight, a 100W print on shoelace copper, a wiggling receptacle, or heat you can feel through the desk after charging a phone.</p>
+    <p>USB-C PD is a negotiated contract on CC, not a promise printed next to a lightning bolt. Test with a meter that speaks PD, load the thing, and throw out anything that sags, stinks, or lies about current.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

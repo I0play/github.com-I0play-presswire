@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Under-cabinet LEDs that do not look like a frat house — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 2, 2026 · Home DIY · ~9 minute read</p>
+    <h1>Under-cabinet LEDs that do not look like a frat house: aluminum channel, 24V, and a real dimmer</h1>
+    <p>The peel-and-stick strip you slapped under the cabinets three years ago is now a dotted line of dead pixels and yellow adhesive. That is not bad luck. That is what happens when you mount a flexible PCB on painted wood, cook it with a 12 V supply running at 95% load, and never give the diodes a heat path.</p>
+    <p>Do it once. Use aluminum channel, 24 V tape, a driver with headroom, and a dimmer that matches the driver.</p>
+    <h2>Why the cheap strip fails</h2>
+    <p>LED tape is a row of diodes on a thin copper pour. The adhesive is not a mount. Heat has nowhere to go except into the cabinet bottom, which is an insulator. High-CRI tape at 10–14 W/m on 12 V also means more current for the same wattage, more drop along the run, and color shift by the sink.</p>
+    <p>Aluminum channel is the heat sink, the straight edge, and the frosted line that hides the dots. Skip it and you are installing a temporary light.</p>
+    <h2>12 V vs 24 V</h2>
+    <p>Same light output is available in both. 24 V halves the current for a given wattage. Voltage drop along a 2–3 m run becomes a non-event instead of a visible dim at the far end. Match the strip voltage to the driver. A 12 V strip on a 24 V driver dies fast. A 24 V strip on 12 V looks sad. That is the number-one unforced error in DIY lighting.</p>
+    <h2>Parts that do not embarrass you</h2>
+    <ul>
+      <li>24 V high-CRI tape (90+ CRI, 3000 K or 3500 K for kitchens)</li>
+      <li>Aluminum channel with a frosted cover — corner profile to wash the backsplash, surface profile to hit the counter</li>
+      <li>Mounting clips and end caps</li>
+      <li>A constant-voltage driver sized for load times 1.25. Five meters at 10 W/m is 50 W — buy 60 W or 75 W</li>
+      <li>A dimmer that speaks the same language as the driver: TRIAC on the AC side, or PWM / 0–10 V on the low-voltage side</li>
+      <li>18 AWG for short low-voltage runs, 16 AWG if you cross the kitchen</li>
+    </ul>
+    <p>Skip RGB party strips in a kitchen you cook in. One good warm-white scene and a dimmer beats a rainbow remote you will lose in a drawer.</p>
+    <h2>Layout before you cut</h2>
+    <p>Measure each cabinet run separately. Gaps over the stove and sink are separate channels, not one strip bent around a range hood. Park the driver above the fridge, in a pantry, or in a cabinet that does not see grease. Drivers hate heat and sealed boxes.</p>
+    <p>Decide whether the wall switch is line-voltage to the driver or low-voltage control. If you are not comfortable opening a box, hire an electrician for the AC side and do the low-voltage work yourself.</p>
+    <h2>Cut, mount, feed</h2>
+    <ol>
+      <li>Cut channel square. Deburr so the diffuser seats. End caps hide the cut.</li>
+      <li>Clean the cabinet underside. Grease kills adhesive. Clips on 12–18 in centers. Pilot holes. Check cabinet thickness before you pick screw length.</li>
+      <li>Cut tape only on the marked copper pads. Wrong cut means a dead segment or a short that takes the driver with it.</li>
+      <li>Observe polarity. Mark the feed end.</li>
+      <li>Solder or use proper clips, then insulate. Solder wins for anything trapped in a channel for a decade. Keep joints low-profile.</li>
+      <li>Press the tape the full length of the channel. Air gaps become hot spots.</li>
+      <li>Feed the lead out the end cap or a drilled hole. Do not pinch the jacket under the channel lip.</li>
+    </ol>
+    <h2>Wiring the driver</h2>
+    <p>Low-voltage connections can live in a cabinet. Line-voltage connections belong in a box. Ground the metal if the chassis expects it. Strain-relief the cable. Do not bury a driver under cookbooks.</p>
+    <ul>
+      <li>TRIAC dimmable driver plus a compatible LED dimmer on the hot feeding the driver</li>
+      <li>PWM controller on the 24 V output for low-voltage control, FET sized for actual current</li>
+      <li>0–10 V if that is what your switch already is — run the pair properly</li>
+    </ul>
+    <p>Power up on the bench first. Confirm every segment before you snap fifteen feet of diffuser in place and find a reversed jumper over the sink.</p>
+    <h2>Finish work people skip</h2>
+    <p>Aim the channel. A 45-degree wash hides the source. A straight down-fire is better for chopping onions. Cap every end. Label the driver with voltage, wattage, and date.</p>
+    <p>Done looks like this: no dots, no ice-cave blue, no brick hanging from an outlet strip. A continuous warm line, a switch that dims without strobing, and a driver that is barely warm after an hour at full output. That is a weekend, not a 20-minute short — which is why the 20-minute version fails in six months.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ESP32 brownouts are not a mystery — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 3, 2026 · Electronics · ~7 minute read</p>
+    <h1>ESP32 brownouts are not a mystery. Your 3.3 V rail is collapsing and the chip is telling you so.</h1>
+    <p>The serial log says <code>Brownout detector was triggered</code> and then the board resets like it just remembered a war crime. You blame Wi-Fi. You blame the Arduino core. You add a 100 µF cap “that some guy on a forum swore by” and it still dies the second the radio wakes up or a relay coil slams shut.</p>
+    <p>The chip is fine. The power is not. ESP32 brownout is a voltage supervisor doing its job: 3.3 V sagged under the trip point, usually for a few microseconds you cannot see with a cheap meter.</p>
+    <h2>What the detector actually watches</h2>
+    <p>Espressif’s brownout circuit looks at the internal 3.3 V domain. When it drops too far, too fast, the core resets instead of executing garbage. That is a feature. A half-powered flash read is how you brick a module.</p>
+    <p>Typical trip is in the neighborhood of 2.4–2.8 V depending on chip revision and config. You will not catch that with a $8 USB meter that updates twice a second. You need either a scope on the 3.3 V pin during the event, or you need to stop guessing and fix the supply.</p>
+    <h2>The three ways hobby boards starve</h2>
+    <p><strong>USB is not a power supply.</strong> A laptop port that claims 500 mA, a 2 m cable with 0.3 Ω of copper, and a linear regulator on the DevKit that turns 5 V into 3.3 V and heat — that stack already lost the war before Wi-Fi even associated. Peak TX current on ESP32 is ugly. Add a camera, a display backlight, or a servo and the rail falls off a cliff.</p>
+    <p><strong>The onboard LDO is a joke at load.</strong> Many DevKits use a 500 mA or 600 mA regulator with no copper pour worth mentioning. At 250 mA average plus radio bursts it runs hot and droops. If the board is warm and the reset happens when the radio starts, that is your answer.</p>
+    <p><strong>You are switching an inductive load off the same 3.3 V.</strong> A relay module “powered from the 3.3 V pin” is how you write a support post. Coil inrush plus flyback spike plus a shared ground that is two skinny traces long equals a reset that looks random.</p>
+    <h2>Fix the rail, then debug firmware</h2>
+    <ol>
+      <li>Feed 5 V into VIN from a brick that can do at least 2 A, not from a random USB hub. Measure 5 V at the board under load.</li>
+      <li>If you need 3.3 V for sensors, use a separate regulator with headroom, not the DevKit pin. AMS1117 is mediocre. A 1 A buck or a decent LDO with a real tab is better.</li>
+      <li>Put bulk capacitance where the current happens: 47–220 µF low-ESR electrolytic or polymer on the 5 V input, 10–22 µF ceramic right at the ESP32 3.3 V pin. Capacitance two inches away on a breadboard is theater.</li>
+      <li>Relays, motors, LED strips, and pumps get their own supply. Common ground, separate positive. Flyback diode on every coil. A MOSFET, not an ESP32 GPIO, switches the coil.</li>
+      <li>Short, fat power wires. Breadboard rails are 26 AWG lies. Dupont jumpers are not power distribution.</li>
+    </ol>
+    <h2>How to prove it in five minutes</h2>
+    <p>Scope CH1 on 3.3 V, trigger on falling edge around 3.0 V, then start Wi-Fi or fire the relay. If you see a 200 mV hole, you found it. No scope? Watch a decent multimeter on 3.3 V while you hammer the radio in a loop. If the average sags below 3.2 V, the peaks are worse.</p>
+    <p>You can disable the brownout detector in software. That is how you ship a device that corrupts NVS and comes back as a brick two weeks later. Do not do that unless you are characterizing the hardware and you know the rail is clean.</p>
+    <h2>A sane default stack</h2>
+    <ul>
+      <li>Known-good 5 V / 2 A+ supply into VIN</li>
+      <li>Short USB cable only for serial, or skip USB power entirely once you have VIN</li>
+      <li>Local 3.3 V regulator if anything besides the module drinks from 3.3 V</li>
+      <li>Bulk + ceramic on both rails</li>
+      <li>Inductive loads isolated</li>
+    </ul>
+    <p>After that, if it still resets, then you can talk firmware: deep-sleep current, brownout config, flash timing. Until the rail holds 3.3 V while the PA is screaming, the log is not a puzzle. It is a voltmeter you refused to use.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

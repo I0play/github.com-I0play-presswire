@@ -14,6 +14,16 @@
   <main>
     <article class="card">
       <p class="meta">Sep 4, 2026 · Electronics · 8 min</p>
+      <h2><a href="/posts/2026-09-04-logic-level-shifter.html">Hooking a 5 V module to a 3.3 V GPIO because “it worked on the breadboard” is how pins die on a Tuesday.</a></h2>
+      <p>ESP32 is not 5 V tolerant. I2C needs a real bidirectional shift, UART needs a 74-series gate, and a pile of pull-ups is not a translator. Wire LV/HV correctly or watch the 3.3 V rail get lifted.</p>
+    </article>
+    <article class="card">
+      <p class="meta">Sep 4, 2026 · Home DIY · 8 min</p>
+      <h2><a href="/posts/2026-09-04-door-weatherstrip.html">If you can see parking-lot light under the front door, you are paying to heat the porch.</a></h2>
+      <p>Kerf-in bulb, a sweep that actually kisses the threshold, corner pads, and hinge screws into framing. Grocery-store foam tape is not a gasket.</p>
+    </article>
+    <article class="card">
+      <p class="meta">Sep 4, 2026 · Electronics · 8 min</p>
       <h2><a href="/posts/2026-09-04-flyback-diodes.html">That little coil on the relay is a voltage gun. Skip the diode and your MCU dies on the tenth click.</a></h2>
       <p>Inductors return their energy somewhere. A flyback diode at the coil is the difference between a clean click and a dead GPIO. 1N4007 vs Schottky, LINE vs load supply, and the scope trick that proves you fixed it.</p>
     </article>

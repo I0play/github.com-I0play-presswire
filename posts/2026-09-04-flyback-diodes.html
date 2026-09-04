@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A relay without a flyback diode is a chip killer — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 4, 2026 · Electronics · ~8 minute read</p>
+    <h1>That little coil on the relay is a voltage gun. Skip the diode and your MCU dies on the tenth click.</h1>
+    <p>A relay, a solenoid, a small DC motor, a magnetic door lock: they are all inductors. Current in a coil stores energy in a magnetic field. When you open the transistor or MOSFET that was feeding that coil, the field collapses and the inductor tries to keep the current flowing. Voltage spikes. Not a polite 12 V bump. Tens or hundreds of volts across a GPIO that was rated for 3.3.</p>
+    <p>That spike is why a board works on the bench for an hour and then the output pin is dead, or the 5 V rail has a mysterious reset every time the click happens. People blame firmware. The firmware did not invent a 80 V kickback.</p>
+    <h2>What the diode actually does</h2>
+    <p>A flyback diode (freewheeling diode, snubber diode, kickback diode — same job) sits across the coil, cathode toward the positive supply. When the switch is on, the diode is reverse-biased and does nothing. When the switch opens, the coil current loops through the diode instead of through your transistor’s parasitic body and your poor decoupling caps.</p>
+    <p>The coil voltage is clamped to about one diode drop above the supply on the high side, or one drop below ground if you wired it backwards and smoked it. Wire it the right way. Stripe / band / cathode on the + side of the coil.</p>
+    <h2>Parts that are good enough</h2>
+    <p>For a 5 V or 12 V signal relay, a 1N4007 is ugly and slow and still works. A 1N4148 is faster and fine for small coils. A Schottky (1N5819, SS14) clamps lower and switches quicker, which is kinder to a MOSFET. You do not need a 3 A part for a 30 mA coil. You do need the reverse voltage to be higher than the supply with margin — 40 V or 100 V parts are cheap.</p>
+    <p>Do not use an LED as the clamp because you thought the color was cute. Do not use a resistor alone and call it a snubber unless you calculated the energy and you like heat. An RC snubber across the coil or across the contacts is a different problem (arcing at the mechanical contacts). The diode is for the coil drive transistor.</p>
+    <h2>Where it lives on the board</h2>
+    <p>Put the diode at the coil, not six inches away on the MCU board. Trace inductance is how a “protected” driver still rings. If you bought a relay module off a marketplace and it already has a diode and an optocoupler, look at the silkscreen before you add a second one backwards. Many cheap modules already have the diode. Many cheap modules also have the transistor wired so the LED and the coil share a sad 5 V rail from the USB port. Separate the coil supply if the click browns out the ESP.</p>
+    <p>If you drive the coil from a GPIO through a BJT or MOSFET, you still want the diode on the coil. The transistor is not a clamp. A MOSFET’s body diode is pointed the wrong way for this job.</p>
+    <h2>Motors and bigger coils</h2>
+    <p>A brushed DC motor across a half-bridge is not one diode. That is a catch diode on each switch, or a proper driver that already has them. A solenoid that slams a lock at 1 A needs a diode that can take that current for the decay time, not a signal diode you found in a clock radio. If the coil is AC, a single DC diode is the wrong part — use an RC snubber or an MOV rated for the line, and stop pretending a 1N4007 belongs across 120 VAC.</p>
+    <p>PWM on a solenoid to hold it after pull-in is fine. The diode still belongs across the coil. Without it, every PWM edge is a kick.</p>
+    <h2>How you know you skipped it</h2>
+    <ul>
+      <li>Scope the drain or collector when the coil turns off. A spike that disappears when you tack a diode across the coil is the whole lecture.</li>
+      <li>The MCU resets only when the relay clicks, never in firmware-only tests.</li>
+      <li>The driver transistor runs hot or shorts after a few hundred cycles.</li>
+      <li>Nearby analog readings jump when the door lock fires.</li>
+    </ul>
+    <h2>A habit for the next board</h2>
+    <ol>
+      <li>Every inductive load gets a clamp at the load.</li>
+      <li>Coil supply is not the MCU 3.3 V pin.</li>
+      <li>A flyback diode is not optional “if I have room.” Room is a 1206 Schottky.</li>
+      <li>After you solder it, click the relay with a scope on the switch node once. If the trace looks like a hedge, you missed a path.</li>
+    </ol>
+    <p>Inductors do not care about your schedule. They return their energy somewhere. Pick the diode, or the silicon picks you.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

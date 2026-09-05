@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your button is not possessed. It is bouncing. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 5, 2026 · Electronics · ~8 minute read</p>
+    <h1>That toggle fired four times because metal does not close cleanly. Debounce it or live with ghost clicks.</h1>
+    <p>A mechanical switch is two pieces of metal that slam together and chatter for a few milliseconds. Your MCU samples that chatter as 3, 7, or 19 edges. Firmware then increments a counter, toggles a relay, or arms a motor. You call it a bug. The switch calls it Tuesday.</p>
+    <p>Capacitive touch and hall sensors do not bounce like this. Cheap tact switches, rocker switches, and the limit switch on a garage door do. If your code treats every edge as gospel, you will ship a product that double-fires on the first cold morning.</p>
+    <h2>What bounce actually looks like</h2>
+    <p>Scope the pin with a 10x probe and a 1 ms/div timebase. Press the switch. You will see a mess of 0/1 transitions for 1–20 ms, then a clean level. Release is often worse than press. Some switches bounce 50 ms if they are dirty or side-loaded.</p>
+    <p>Software that counts rising edges in an ISR will count every wiggle. Polling in a 1 ms loop without state will do the same. The fix is not a faster MCU. The fix is to ignore the pin until it has stayed put.</p>
+    <h2>Hardware that actually helps</h2>
+    <p>An RC on the pin is the old-school clamp: 10 kΩ series, 100 nF to ground, Schmitt input if you have one. That low-pass eats the hash. It also slows the edge, so do not use it on a 1 MHz clock line and call it a debounce. For a human finger on a button, 5–20 ms of analog slop is fine.</p>
+    <p>A dedicated debounce IC (MAX6816 and friends) is overkill unless you are shipping thousands and you hate firmware. A 74HC14 Schmitt after a dirty switch is a cheap middle ground.</p>
+    <p>Do not put a 100 µF electrolytic on a GPIO and call it engineering. You will brown the rail when the cap charges, and the pin protection diodes will thank you sarcastically.</p>
+    <h2>Software that does not lie</h2>
+    <p>Simplest reliable pattern: sample the raw pin every 5 ms. Require N identical samples before you accept a new state. N = 4 is 20 ms. That kills almost every tact switch. If the switch is a crusty appliance rocker, go 50 ms and stop pretending you need instant response. A human cannot press faster than that on purpose.</p>
+    <p>ISR plus a timestamp also works: on the first edge, note millis(), ignore further edges until 20 ms later, then read the pin once and commit. Do not increment a counter inside the ISR on every edge. That is how you invent a 12-click ghost.</p>
+    <p>Libraries that “debounce for you” are fine if you read the default window. Some default to 1 ms, which is a joke. Set it. Test it with the actual switch, not a jumper wire you bounce with a fingernail once.</p>
+    <h2>Pull-ups, polarity, and the pin that floats</h2>
+    <p>A floating input looks like a haunted button. Enable the internal pull-up or add a real 10 kΩ. Wire the switch to ground. Read active-low. If you wire it to 3.3 V and hope the pin stays low when open, you are rolling dice with humidity.</p>
+    <p>Long cables to a panel switch pick up junk. Twist the pair, keep the return next to the signal, and debounce longer. An opto or an isolated input is the adult move when the switch lives next to a motor.</p>
+    <h2>How you know it is still bouncing</h2>
+    <ul>
+      <li>A single press logs two events in serial.</li>
+      <li>A menu skips an item only when you stab the button hard.</li>
+      <li>A relay chatters instead of latching.</li>
+      <li>The scope still looks like a hedge and your code “filters” by hoping.</li>
+    </ul>
+    <h2>A habit for the next board</h2>
+    <ol>
+      <li>Every mechanical input gets a defined idle level and a time window.</li>
+      <li>Tune the window on the real part, not the datasheet cartoon.</li>
+      <li>Do not debounce in two places and then wonder why the UI feels drunk.</li>
+      <li>If the action is dangerous (motor, heater, lock), require a stable state plus a second confirm. Bounce is not a safety interlock.</li>
+    </ol>
+    <p>Metal chatters. Code that pretends otherwise will click twice. Give the pin 20 ms of boredom and it will tell you the truth.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

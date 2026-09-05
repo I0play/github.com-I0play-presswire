@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>I2C is not magic. It is two open-drain lines and the resistors you forgot. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 5, 2026 · Electronics · ~8 minute read</p>
+    <h1>Your I2C scan returns nothing because the bus never rose. Fix the pull-ups before you rewrite the library.</h1>
+    <p>SDA and SCL are open-drain. Chips can only yank them to ground. The only thing that ever takes those lines high is a resistor to the I/O voltage. No resistor, no high. The scope shows a sad 0.4 V droop and you blame Wire.h. Stop that.</p>
+    <p>Every module with a printed “I2C ready” sticker already has 4.7 kΩ or 10 kΩ on board. Stack four of those boards on one header and you now have 1.2 kΩ equivalent. The edges look fine at 100 kHz and turn into triangles at 400 kHz. Then you add a 1-meter jumper and the ACK disappears. This is not a software mystery. This is RC time constants being rude.</p>
+    <h2>What a healthy bus looks like</h2>
+    <p>Scope both lines at the master. Idle is a clean rail — 3.3 V or 5 V, not 2.7 V because someone mixed voltages. A low is under 0.4 V. Rise time from 30 % to 70 % of the rail should be well under the I2C spec for your speed: roughly 1000 ns at 100 kHz, 300 ns at 400 kHz. If the rising edge is a lazy ramp that never quite makes it before the next clock, the slave will miss bits and you will get NACKs that wander with cable length.</p>
+    <p>Fall time is almost always fine. MOSFETs pull hard. Rise time is the whole game.</p>
+    <h2>Pick a resistor like an adult</h2>
+    <p>Start from current, not folklore. A 3.3 V bus with 2.2 kΩ pull-ups sources about 1.5 mA when a chip holds the line low. Most MCU pins and sensor open-drains can sink that. 4.7 kΩ is the default that works on a short proto board at 100 kHz. 10 kΩ is for low-power sleepy sensors on a two-inch trace. 1.5–2.2 kΩ is what you reach for when the cable is long or you insist on 400 kHz.</p>
+    <p>Do not parallel five 4.7 kΩ modules and then add another pair “at the Pi because the tutorial said so.” Desolder the extras or cut the module traces. One pair at the master is the clean layout. A second pair at the far end of a long run can help, but only if you calculated the parallel value first.</p>
+    <h2>Capacitance is the enemy you can measure</h2>
+    <p>Every foot of cheap jumper is tens of picofarads. Ribbon cable next to a motor is worse. A 4.7 kΩ into 200 pF is a 1 µs time constant. That is already a 400 kHz killer. Shorten the run, use twisted pair with a ground next to each signal, or drop the clock. I2C was designed for a board, not a crawlspace.</p>
+    <p>If you need meters, stop using I2C. Use a differential pair, a UART, or an I2C extender that actually buffers. Hope is not a bus transceiver.</p>
+    <h2>Voltage mixing will cook a pin</h2>
+    <p>A 5 V sensor on a 3.3 V MCU with a 4.7 kΩ to 5 V lifts the MCU pin through the protection diode. Sometimes it “works” until humidity or a hot day. Level-shift properly: MOSFET bidirectional shifter for SDA and SCL, or a real PCA9306. A resistive divider is not bidirectional. We already wrote the obituary for that trick.</p>
+    <p>Idle voltage must match the lowest-voltage chip on the bus unless that chip is 5 V tolerant and you read the datasheet like you meant it. “It enumerated once” is not a spec.</p>
+    <h2>Address fights and the scan that lies</h2>
+    <p>Two devices at 0x3C will not take turns. One wins, or neither ACKs cleanly. Check the address pads on the module. A scan that prints every address is a bus stuck low or a pull-up to the wrong rail. A scan that prints nothing is a bus stuck high with no ACK — wiring, power, or a device that is asleep because you never tied its enable pin.</p>
+    <p>Clock stretching is real on some sensors. If your bit-bang or a cheap USB-I2C dongle cannot wait, the transaction dies mid-byte. The hardware peripheral on an ESP32 or a Pi usually can. Test with a known-good short cable and one device before you invent a new protocol.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Power the sensors. Measure 3.3 V at the module, not at the bench supply.</li>
+      <li>Confirm SDA and SCL are not swapped. Labels lie on cheap boards.</li>
+      <li>Scope idle high. If it is not the rail, find the missing pull-up or the short.</li>
+      <li>Count on-board resistors. Parallel math, then pick one pair.</li>
+      <li>Run 100 kHz first. Speed is a prize you earn after the edges look square.</li>
+    </ol>
+    <p>I2C fails loud when the analog is wrong and quiet when the analog is almost wrong. Give the lines a defined pull-up, a short run, and one voltage. Then the library will suddenly “work.”</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A 3.3 V GPIO is not a gate driver. Pick a MOSFET that actually turns on. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 6, 2026 · Electronics · ~8 minute read</p>
+    <h1>That IRF540 on a 3.3 V pin is a resistor with extra steps. Buy a logic-level FET or stop pretending you PWM.</h1>
+    <p>You copied a schematic that said “N-channel MOSFET, any will do.” You grabbed an IRF540 because it is cheap and the package looks serious. You tied the gate to an ESP32 pin. The motor crawls. The FET gets too hot to touch. The chip resets when the Wi-Fi radio wakes. This is not a code problem. The FET never left the linear region.</p>
+    <p>Vgs(th) is not the voltage that turns the part fully on. It is the voltage where a trickle of current starts. An IRF540 threshold around 2–4 V means at 3.3 V you are babysitting a half-open valve. Rds(on) in the datasheet is quoted at 10 V. Your GPIO is not 10 V. Read the Rds(on) vs Vgs curve or you are shopping by package color.</p>
+    <h2>What “logic-level” actually means</h2>
+    <p>You want a part whose Rds(on) is specified at 4.5 V and, better, at 2.5 V or 3.3 V. IRLZ44N, IRLZ34, AO3400, IRLZ44 equivalents, Si2302, IRLML2502 — parts that publish a low Rds(on) at the voltage your MCU actually puts on the pin. If the table only lists Rds(on) at 10 V, that FET is for a gate driver, not a GPIO.</p>
+    <p>Surface-mount SOT-23 parts with 20–30 mΩ at 2.5 V will switch a 2 A strip or a small pump and stay cool. A TO-220 boat anchor with 44 mΩ at 10 V and 200 mΩ at 3.3 V will cook a heatsink and lie to you on the bench because the load is small today.</p>
+    <h2>Gate charge is why your PWM looks drunk</h2>
+    <p>A fat TO-220 has tens of nanocoulombs of gate charge. An MCU pin can source a few tens of milliamps for a moment. Charge over current is time. The FET spends microseconds sliding through the linear region every edge. At 20 kHz that is a lot of heat and a lot of supply bounce. A 47–100 Ω gate resistor is not optional decoration. It kills ringing with the gate capacitance and the wiring inductance. Too big and you slow the edge until the FET is a toaster again. Start at 47 Ω, scope the gate at the pin of the FET, not at the MCU.</p>
+    <p>If you need hard switching on a chunky FET, stop driving it from GPIO. Use a gate-driver IC or a cheap totem-pole pair and a 12 V or 10 V gate supply. Bootstrap drivers exist because physics did not change since 1998.</p>
+    <h2>Low-side switching is the default that works</h2>
+    <p>Put the N-FET between the load and ground. Source at GND, drain at the load return, gate from the MCU through the resistor. The load plus side stays at the supply. This is the topology your first schematic should have been. High-side N-FETs need a gate above the supply. That is a charge pump or a P-FET. A P-FET high-side switch wants a gate pulled to the 12 V rail to turn off and pulled down to turn on — which means a small N-FET or an NPN from the GPIO, not a direct 3.3 V wire to a 12 V gate.</p>
+    <p>Common-ground with the MCU. If the motor supply floats, the gate voltage is a guess and the FET is a fuse.</p>
+    <h2>The parts people skip and then debug for a week</h2>
+    <p>A 10 kΩ pulldown from gate to source so the FET is off while the MCU boots and the pin is high-Z. Without it the motor twitches when you plug USB in. A flyback diode on any inductive load — we already yelled about that. A bulk cap on the 12 V rail next to the FET because PWM is a square current and wires are inductors. A TVS if the harness is long and the truck door slams.</p>
+    <p>Measure Vds while the load is on. If it is more than a few tenths of a volt at a few amps, Rds(on) is not what you think and the copper is the heater. Measure the gate at the FET. If it is 2.1 V because the pin cannot drive the cable, you have a wiring problem, not a part number problem.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Open the datasheet to the Rds(on) table. If 4.5 V is not listed, put the part back.</li>
+      <li>Low-side N-FET, source at MCU ground, 47 Ω gate, 10 kΩ pulldown.</li>
+      <li>Diode on coils. Cap on the load supply.</li>
+      <li>Scope gate and drain at the FET, not at the breadboard power rail.</li>
+      <li>If it is still hot, you are in the linear region or the current is higher than the wire gauge you used for the source.</li>
+    </ol>
+    <p>GPIO pins switch logic. MOSFETs switch current. Meet them in the middle with a part specified at your gate voltage, or add a driver and stop blaming firmware for a warm tab.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

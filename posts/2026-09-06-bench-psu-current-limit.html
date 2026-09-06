@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A bench supply with the current knob wide open is a fuse with a display. Set the limit first. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 6, 2026 · Electronics · ~8 minute read</p>
+    <h1>A bench supply with the current knob cranked is a short looking for a board. Set the limit before you clip on.</h1>
+    <p>You built the circuit. You clipped the red lead. You heard the click of a MOSFET dying and smelled the epoxy. The meter on the supply said 3.2 A for a board that should sip 80 mA. That was not a mystery. That was the current knob sitting at the stop because last week you were charging a lead-acid and you never turned it back down.</p>
+    <p>A lab supply is two things stacked: a voltage source and a current ceiling. Voltage mode is the default. Current mode is the thing that saves the copper when you reverse a diode or short a via with a probe. If you never set the ceiling, you do not have a bench supply. You have a wall wart with extra digits.</p>
+    <h2>How to set the limit without guessing</h2>
+    <p>Power the supply with the output off if it has a button. Short the output leads together. Raise the current knob until the ammeter reads what the board is allowed to draw plus a little headroom — 150 mA for a sleepy MCU board, 400 mA if the radio will TX, 1.2 A if you have a motor that stalls. Then open the short, set the voltage, and connect the board. That sequence is not optional theater. If you set voltage first with the current wide open and then clip onto a backwards electrolytic, the cap explodes before your hand leaves the clip.</p>
+    <p>Read the front panel. CV means constant voltage, healthy. CC means constant current, the supply is already holding the rail down because something is eating amps. If you expected CV and you got CC at 3.3 V collapsing to 1.1 V, stop pressing reset. You have a short or a part in the linear region. Find it. Do not raise the current knob to “make it boot.”</p>
+    <h2>Headroom is not a personality trait</h2>
+    <p>Wi-Fi chips spike. Relays click. A servo stalls. Give the limit enough room for the legitimate peak or the MCU will brown out and you will debug firmware for an hour. Do not give it 5 A because the supply can do 5 A. A 3.3 V rail at 5 A into a solder bridge is 16 W in a pad the size of a rice grain. The board will tell you with smoke.</p>
+    <p>If the project needs a fat peak and a tiny idle, use two numbers. Set the limit for the peak while you test the actuator. Drop it back when you are probing logic. Write the expected idle current on the schematic. If idle jumps from 40 mA to 280 mA after you “just added an LED,” the LED is not the story. You have a pin fighting another pin or a regulator oscillating.</p>
+    <h2>Sense the current. Do not trust the 10 A shunt on the cheap meter.</h2>
+    <p>The 10 A jack on a $15 meter is a chunk of wire and a hope. At 80 mA it lies. Use the mA jack, or better, a series sense resistor you actually calculated. 0.1 Ω, 1 W, Kelvin-ish leads to the scope. Voltage across it is current. You will see the radio TX pulse that the supply’s slow ammeter averages into nothing. That pulse is why the 3.3 V LDO sings and the ESP32 resets. We already covered brownouts. This is how you prove them.</p>
+    <p>A hall module is fine for amps. It is a joke for milliamps. Offset drift will convince you the board draws 40 mA when it draws 8. Calibrate zero with the load unplugged every time you care.</p>
+    <h2>Leads, polarity, and the other ways people cook a first spin</h2>
+    <p>Banana-to-clip leads that came in the box are 20 gauge wishes. Voltage at the supply is not voltage at the board when you pull 2 A through two meters of floppy wire. Measure at the pins. If you need a stiff 5 V at the load, either shorten the leads or sense remotely if the supply has sense terminals. Most hobby units do not. So shorten the leads.</p>
+    <p>Reverse polarity protection is a series P-FET or an ideal-diode controller, not a prayer. A series diode drops 0.7 V and cooks at 2 A. Fine for a 12 V pump. Stupid for a 3.3 V MCU. If you clip the supply on backwards without protection, the current limit is the only adult in the room.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Short the leads. Set current to expected draw plus modest headroom. Unshort.</li>
+      <li>Set voltage. Clip on. Confirm CV, not CC.</li>
+      <li>Write down idle current. If it doubled, you have a fight on a pin, not a feature.</li>
+      <li>Measure at the board, not at the binding posts, when current is not trivial.</li>
+      <li>If you smell epoxy, kill the output. Raising the current knob is not a repair.</li>
+    </ol>
+    <p>The current knob is a fuse you can reset. Treat it that way or keep a jar of dead regulators next to the coffee.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

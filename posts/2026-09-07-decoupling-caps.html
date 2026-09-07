@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>That 100 nF cap in the drawer does nothing on the other side of the board. Park it on the pin. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 7, 2026 · Electronics · ~8 minute read</p>
+    <h1>A decoupling cap six inches from VCC is jewelry. Put 100 nF on the pin or watch the MCU lie to you.</h1>
+    <p>The chip draws a spike. The trace is an inductor. The rail dips for a few nanoseconds. The brownout detector blinks, the ADC samples garbage, the radio fails to lock. You stare at firmware. The schematic already had “100 nF near IC” written in a font you ignored because the breadboard still fit.</p>
+    <p>Decoupling is not a religion. It is a local energy dump so the pin does not have to wait on a wire. Skip it and you debug ghosts. Stuff a random electrolytic at the barrel jack and call it done and you still have ghosts, just with extra ripple on the scope if you ever bother to look.</p>
+    <h2>What the cap is actually doing</h2>
+    <p>A digital pin flipping is a current step. The loop from the pin, through the load, back through ground, wants charge now. The regulator is centimeters away and has a control loop measured in microseconds. The 100 nF ceramic is the only part in the neighborhood that can move charge in nanoseconds. The big bulk cap at the input is for milliseconds. They are not interchangeable. A 470 µF electrolytic has ESR and ESL that make it look like an open at 20 MHz. A 100 nF 0603 next to the pin looks like a cap at 20 MHz. That is the whole joke.</p>
+    <p>One value is not a complete answer. Use bulk where the power enters the board — 10 µF to 47 µF ceramic or a polymer if you have motors. Use 100 nF at every VCC/GND pair on a logic chip. Add 1 µF or 10 µF next to a radio, an analog reference, or an LDO output. Stacking three 100 nF in the same footprint because a blog said “more is better” just parallels ESL and wastes pads. Different values help when they sit at different distances or when one of them is actually bulk.</p>
+    <h2>Placement is the spec</h2>
+    <p>The loop area is the part you control. Cap to VCC pin, cap to GND pin, short and fat. Via down to a ground plane immediately, not a scenic tour around a logo. If you only have a two-layer board, pour ground under the chip and stitch it. Do not run the return through a 0.2 mm trace that also carries a PWM. That trace is an antenna and a resistor.</p>
+    <p>On a breadboard the “near” rule still applies and everyone pretends it does not. Push the ceramic into the same trough as the VCC pin. Do not park it three rows down because the jumper colors looked tidy. If the project leaves the breadboard, the first spin of the PCB is where you stop being cute.</p>
+    <h2>Voltage rating and dielectric are not trivia</h2>
+    <p>X7R and X5R lose capacitance as DC bias climbs. A 10 µF 6.3 V 0603 sitting on a 5 V rail may be 3 µF when you measure it. That is not a counterfeit scandal. That is the datasheet curve you did not open. Use a higher voltage rating than the rail, or a bigger case, if you actually need that 10 µF. C0G/NP0 is for timing and analog, not for dumping a radio pulse. Do not put Y5V on a board you intend to keep.</p>
+    <p>Polarized bulk belongs the right way around. Tantalums punish reverse voltage with fire. Aluminum electrolytics dry out next to a regulator that runs hot. If the board lives in a shed, derate or use polymer.</p>
+    <h2>How you know you missed it</h2>
+    <p>Scope the rail at the pin, not at the connector. 20 MHz bandwidth limit off. Ground spring on the probe, not a six-inch alligator clip that adds its own ringing. If you see a 400 mV dip when the radio TX pin fires, you do not have a firmware bug. You have inductance. Add the cap. Shorten the loop. Then look again.</p>
+    <p>A linear regulator that sings is often starving for output capacitance or sitting after a long cable. Read the stability section. Some LDOs want ESR. Some hate it. Copying a 100 nF from a different chip onto an LDO that specified 1 µF ceramic is how you ship an oscillator.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>100 nF ceramic on every digital VCC pin, loop as short as the package allows.</li>
+      <li>Bulk at the board entry. Extra 1–10 µF at radios, references, and LDO outputs.</li>
+      <li>Scope the rail at the pin with a short ground. Connector ripple is not pin ripple.</li>
+      <li>Check DC-bias curves before you trust the number printed on the part.</li>
+      <li>If the MCU resets when a load switches, fix the local caps before you rewrite setup().</li>
+    </ol>
+    <p>The cap is cheap. The afternoon you spend chasing a reset that only happens with the antenna connected is not.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

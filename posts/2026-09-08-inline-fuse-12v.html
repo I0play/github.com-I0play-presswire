@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>If the wire is the fuse, you already lost. Put an ATC on the 12 V rail. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 8, 2026 · Electronics · ~8 minute read</p>
+    <h1>A 12 V rail with no fuse is a heater looking for a harness. Clip an ATC on the positive before you energize it.</h1>
+    <p>You built a light bar, a bench supply tap, a van fridge, a pile of buck converters hanging off a battery. The first short is a slipped wrench or a frayed jacket against chassis. Without a fuse the copper does the interrupting. Copper is a terrible fuse. It glows, it stinks, and it keeps feeding current until something melts open or the cell pack dumps.</p>
+    <p>A fuse is not decoration. It is a calibrated weak link you chose on purpose. Skip it because “it is only 12 volts” and you learn that voltage is not energy. A car battery will weld a ring terminal to a fender and still have current left over.</p>
+    <h2>Where it actually lives</h2>
+    <p>Protect the wire, not the gadget’s feelings. The fuse sits on the positive, as close to the source as you can stand — battery post, power-supply output, bus bar. Everything downstream is then limited. A fuse at the load after ten feet of 16 AWG only saves that last connector. The run behind the panel is still a heating element.</p>
+    <p>One fuse per homerun. Do not daisy-chain three projects off one 30 A blade and call it a distribution plan. If a camera tap and a heater share a fuse, the camera never blows the fuse and the heater never gets protected at its own current. Split. Label. Move on.</p>
+    <h2>Size the fuse to the wire, then to the load</h2>
+    <p>Ampacity is the ceiling. A fuse larger than the wire’s rating is a permission slip for the jacket to cook. Typical chassis 12 V: 18 AWG is not a 20 A circuit. 16 AWG might take 10–15 A in free air if you are not stuffing it in insulation. 12 AWG is the usual home for 20 A. Look up a real table for bundled or engine-bay runs and derate. Then pick the next standard fuse at or under that number that still lets the real load start.</p>
+    <p>Motors and inverters inrush. A fridge compressor can gulp several times running current for a second. That is why you use a slow-blow or an ATC that is specified for the start, not a glass fuse that pops on every door slam. If the fuse you need for inrush is already bigger than the wire, the wire is wrong. Upsize the conductor. Do not “solve” it with a 40 A blade on 18 AWG.</p>
+    <h2>ATC, mini, glass, polyfuse — pick one on purpose</h2>
+    <p>ATC / ATO blade fuses are the shop default. Cheap holders, visible element, standard sizes, they sit in a splash of oil and still work. Mini blades save space in a crowded panel. Glass 3AG is fine on a bench supply output if the holder is not a cheap spring that oxidizes. Do not mix a 32 V-rated automotive fuse onto a 48 V pack and assume the arc will behave.</p>
+    <p>A polymer PTC (“resettable fuse”) is a resistor that gets hot and stays high-resistance until you remove power and let it cool. Fine for a USB port or a small accessory that shorts once a year. Not fine as the only protection on a battery feed that can source a hundred amps. When it “resets” it may still be cooking. Use it as a backup nuisance limiter, not as the primary interrupt on a fat rail.</p>
+    <p>ANL and MIDI strip fuses belong on high-current battery cables. A 100 A fuse on 4 AWG to an inverter is a system, not a vibe. Bolt them. Do not hang them by the ring and hope vibration is polite.</p>
+    <h2>Holders that do not become the fault</h2>
+    <p>The cheapest in-line ATC holder has stamped contacts that loosen after heat cycles. You find it by smell. Buy a holder with real spring pressure, or a panel block with screw terminals you can torque. Crimp the leads. Strain-relief the jacket so the fuse is not a hinge. Keep the holder off a sharp chassis edge.</p>
+    <p>Water belongs outside the holder. If the run is in a wet box, use a sealed fuse holder or put the fuse in a dry enclosure and drip-loop the cable. Corrosion on a fuse clip is a series resistor. Series resistors get hot at load and look like “the project is drawing too much” when you measure voltage at the device.</p>
+    <h2>How you know you skipped it</h2>
+    <p>Voltage at the battery is 12.6 V. Voltage at the load is 9 V under a lamp. The missing volts are in a connector or a fuse clip you never inspected. A fuse that is warm at rest is high resistance. Replace the holder, not just the element.</p>
+    <p>A fuse that blows on first connection with no load is a short. Find the short. Installing a bigger fuse is how you graduate from a blown element to a burned loom. A fuse that never blows because you used 40 A “to be safe” is not safe. It is optimistic.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Fuse positive, at the source, before the long run.</li>
+      <li>Rate the fuse at or under the wire, high enough for real inrush only if the wire can take it.</li>
+      <li>One homerun, one fuse. Label both ends.</li>
+      <li>Blade or ANL for battery work. PTC only on small nuisance circuits.</li>
+      <li>If it blows, find the short. Do not upsize the element to silence the symptom.</li>
+    </ol>
+    <p>12 V feels friendly until the insulation bubbles. The fuse is cheaper than the harness, the bench, and the afternoon you spend tracing a melted jacket through a cabinet.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

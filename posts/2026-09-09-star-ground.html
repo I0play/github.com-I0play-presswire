@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your analog reading is garbage because the grounds are a necklace. Star them. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 9, 2026 · Electronics · ~8 minute read</p>
+    <h1>That ADC is not haunted. Your grounds are a daisy chain and the motor is writing on the same copper.</h1>
+    <p>You wired a current sensor, a thermistor, and a PWM fan off one ESP32. The temperature jumps every time the fan starts. You blame the library, then the ADC reference, then the moon. Look at the ground path. If return current from the motor shares a jumper with the analog reference, the voltage on that jumper is your “noise.” Ohm’s law does not care that you called the wire GND.</p>
+    <p>A ground is not a magical zero. It is a conductor with resistance and inductance. Current through it makes a voltage. That voltage is exactly what the ADC subtracts from the signal. Daisy-chain grounds on a protoboard are a resistor network you did not design.</p>
+    <h2>Star means one meeting point</h2>
+    <p>Pick a single node as the analog/system ground: the ground pin of the regulator, the star lug on a bus bar, or one protoboard rail you treat as sacred. Every return that matters — MCU, sensor 0 V, ADC reference — goes to that node on its own wire. Power returns from motors, relays, and LED strips also go there, on their own fatter wires, not through the analog jumper.</p>
+    <p>You are not making two universes. You are keeping high current off the skinny path the millivolt measurement uses. The star can be a screw on a copper pour. It can be the ground pin of the buck module if that module is the only supply. It cannot be “whatever hole was empty on row 12.”</p>
+    <h2>What a daisy chain actually does</h2>
+    <p>Sensor ground lands on the proto rail. MCU ground lands three holes down. Motor driver ground lands at the far end. The motor pulls two amps through 50 milliohms of clip leads and oxidized proto clips. That is 100 mV. Your thermistor is a voltage divider sitting on that 100 mV bounce. The ADC is honest. The number is wrong.</p>
+    <p>Same story on a soldered board if you routed a 2 A return across the analog section “because the pour is ground.” A pour is only a low-impedance plane if the current has a short path that does not cross the sense traces. Split the pour with a slot if you must, then join the analog and power grounds at one point near the supply.</p>
+    <h2>Sensors want a private pair</h2>
+    <p>A thermistor, strain gauge, current-shunt amp, or cheap analog humidity module should travel as a pair: signal and its own return, twisted if the run is longer than a hand span. Do not steal ground from the nearest digital device. Do not share the motor cable shield as the only return unless you intended a transformer.</p>
+    <p>If the sensor is 3.3 V ratiometric, its supply and ground should come from the same regulator the ADC uses. Feeding the sensor from a noisy 5 V tap and hoping the divider “sort of tracks” is how you get a reading that walks with load. Decouple at the sensor. You already know that. The ground wire is the other half of that capacitor’s loop.</p>
+    <h2>Chassis, shields, and the third wire</h2>
+    <p>Metal chassis is not analog ground unless you bond it on purpose. A floating enclosure picks up whatever the shop lights are singing. Bond chassis to the star with a short fat strap. Cable shields belong to that same point at one end. Grounding a shield at both ends on a short bench cable usually just makes a loop for the bench PSU’s switching hash. One end, source side, done.</p>
+    <p>Earth from the wall is for safety and EMI dumps. It is not a precision 0 V for a 12-bit conversion. If you tie analog ground to earth, do it at one point. Two earth bonds plus a USB cable to a laptop is a loop. Unplug the laptop and watch the trace get quiet if you need the demonstration.</p>
+    <h2>How you prove it in ten minutes</h2>
+    <p>Scope ground on the MCU ground pin. Probe the sensor ground at the sensor. If that “ground” wiggles when the load switches, you found the voltage that was stealing your LSBs. Move the motor return to the star. Shorten the analog pair. The wiggle should collapse.</p>
+    <p>A cheap trick on proto: lift the analog devices onto their own short ground jumper back to the regulator pin. Leave the digital mess on the rail. Ugly. Quiet. Then solder it properly.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Name one star. Regulator ground or a bolted lug. Everything returns there.</li>
+      <li>High-current returns get their own fat wire. They do not hitchhike on analog GND.</li>
+      <li>Sensor signal and sensor 0 V travel as a pair from the same supply the ADC uses.</li>
+      <li>Chassis and shields bond at one point. USB plus a second earth is a loop until you prove otherwise.</li>
+      <li>Scope ground-to-ground before you rewrite the firmware.</li>
+    </ol>
+    <p>The ADC will keep telling you the truth about the voltage between its pins. Your job is to make those pins see the sensor, not the voltage drop of a fan. Star the grounds. Then debug the code.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

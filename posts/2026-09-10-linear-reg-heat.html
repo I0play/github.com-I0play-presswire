@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A 7805 dropping 12 V is a heater with pins. Do the watt math. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 10, 2026 · Electronics · ~8 minute read</p>
+    <h1>That 7805 on a 12 V rail is not a regulator. It is a toaster pretending to be a part.</h1>
+    <p>You needed 5 V for a sensor board. The barrel jack is 12 V. You dropped a 7805 on a protoboard and called it done. Ten minutes later the tab is too hot to hold and the 5 V rail is sagging. Linear regulators dump the unused voltage as heat. The formula is not optional: heat equals (Vin minus Vout) times load current. At 12 V in, 5 V out, 400 mA, you are burning 2.8 W in a package that can barely shed one watt in free air.</p>
+    <p>The chip will protect itself by folding back. Your MCU will brown out and you will blame firmware. Touch the tab first.</p>
+    <h2>Do the watt math before you solder</h2>
+    <p>Write Vin, Vout, and the real current, not the datasheet maximum of the chip. A sleepy MCU at 30 mA on a 9 V wall wart is fine on an AMS1117. The same regulator feeding a Wi-Fi module that spikes to 300 mA is a different animal. Peak current counts. Radios, motors, and LED bursts are the load, not the idle number on the silkscreen.</p>
+    <p>Dropout matters too. A classic 7805 wants about 2 V of headroom. 6 V in is already the floor. An LDO with 200 mV dropout still dissipates (Vin minus Vout) times I. Low dropout is not low heat. It only means the part still regulates when the input is close. The wasted watts are the same physics.</p>
+    <h2>Free air is a lie</h2>
+    <p>A TO-220 tab in still air is maybe 1 W before the junction walks into thermal shutdown. A SOT-223 AMS1117 on a two-pad protoboard is worse. Copper is the heat sink. A thumbnail of pour on the tab pin is not a heat sink. A real sink, thermal grease or a pad, and airflow if the enclosure is a plastic coffin.</p>
+    <p>If the part has a thermal pad underneath, that pad must solder to a pour with vias. Hovering it on a cheap breakout with two pins and a prayer is how you get a regulator that works on the bench and dies in the box.</p>
+    <h2>When to quit linear</h2>
+    <p>If the watt number is over a watt and you do not have a sink and a plan, use a buck module. A cheap 12 V to 5 V switcher at 85 percent efficiency turns most of that 2.8 W into useful current instead of a blister. Filter the output if the load is analog. Put the linear after the buck if you need a quiet analog rail: drop 12 V to 6 V with the switcher, then 6 V to 5 V linear at low current. That is a legitimate trick. 12 V straight into linear at half an amp is not.</p>
+    <p>Do not stack two linears to “split the heat” unless each one has a sink and you actually calculated both drops. Two hot parts is not a cooling strategy.</p>
+    <h2>Caps, minimum load, and oscillation</h2>
+    <p>Old 78xx parts want a few hundred nF on the input and 100 nF on the output, close. Many LDOs are picky: they want a specific ESR on the output cap or they sing. Read the stability section. A random 10 µF electrolytic from the junk drawer can make a 3.3 V rail look like a sine wave. Scope it at the pin.</p>
+    <p>Some older regulators want a minimum load. A 7805 with a 2 mA blinky and nothing else can drift. Give it a dummy resistor if the datasheet says so, or pick a part that is stable at zero load.</p>
+    <h2>How you prove it</h2>
+    <p>Thermocouple or the back of a finger after ten seconds — if you flinch, you are over dissipation. Measure Vin and Vout under the real load. Multiply. If the number is ugly, you already know why the rail dipped when the radio woke up.</p>
+    <p>A current-limited bench supply in series with Vin will show the input current. Input current times the drop is the heat. The output current is not a mystery if you measure it.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Write (Vin − Vout) × Iload before you pick the package.</li>
+      <li>Over about a watt in free air, add a sink or switch to a buck.</li>
+      <li>Put the recommended caps on the pins, not six inches down the rail.</li>
+      <li>Scope Vout when the radio or motor kicks. Sag plus heat means the part is folding back.</li>
+      <li>Quiet analog rail: buck first, linear last, small drop, small current.</li>
+    </ol>
+    <p>Linear is simple and quiet when the drop and the current are small. It is a space heater when they are not. Do the arithmetic. Your fingerprint on the tab is not a specification.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

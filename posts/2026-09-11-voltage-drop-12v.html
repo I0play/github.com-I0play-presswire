@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>That 12 V strip at the far end is dim because the wire is a resistor. Do the drop math. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 11, 2026 · Electronics · ~8 minute read</p>
+    <h1>The last three feet of that 12 V run is not dying. You undersized the copper and the LEDs are starving.</h1>
+    <p>You fed a 5-meter strip from one end with 22 AWG jumper wire because it was on the bench. First meter is white. Last meter is tea-colored. You blame the reel. Voltage drop is I times R of the round trip. At 12 V, a couple of volts is not a rounding error. It is 15 percent of the rail and the constant-current LED dice at the far end are running on leftovers.</p>
+    <p>Measure at the supply and at the last pad under load. If the far end is 10.4 V and the first end is 12.1 V, you do not have a strip problem. You have a wire problem.</p>
+    <h2>The number that matters</h2>
+    <p>Resistance of copper is not a vibe. 18 AWG is about 6.4 ohms per thousand feet. 22 AWG is about 16. 16 AWG is about 4. Round trip means you count out and back. Twenty feet of 22 AWG one way is forty feet of conductor. Forty feet at 16 ohms per thousand is 0.64 ohms. At 3 A that is 1.9 V gone before the first LED sees it. The strip itself is more copper you also have to pay for if you only inject at one end.</p>
+    <p>Write current first. A 14.4 W per meter 12 V strip at 5 meters is 72 W, about 6 A if the label is honest. Labels lie high sometimes, but size for the printed number. Then pick a drop you can live with. On lighting, stay under half a volt if you care about color match. A full volt is visible. Two volts is a gradient.</p>
+    <h2>Feed it in more than one place</h2>
+    <p>Injection is not a brand. It is extra wire to the middle and the far end, tied to the same supply. You cut the voltage map in half. Do not daisy-chain strip to strip to strip off the data pads and pray. Parallel the power bus with real wire. Keep the grounds as fat as the positives. A skinny return is the same resistor with a different color of insulation.</p>
+    <h2>Connectors are resistors too</h2>
+    <p>Those clip-on solderless joints that bite the pad through a plastic lid are fine for a test. They are a contact under spring tension sitting on a tin sliver. After a summer in a hot valence they oxidize and drop another half volt. Solder the pigtail to the pad. Strain-relieve it so the joint is not the hinge. If you must use a barrel, fuse the positive at the source and keep the barrel off the vibrating side of the run.</p>
+    <p>Wago-style lever splices on stranded 12 V are acceptable if the lever actually closes on the strands and you are not hanging six amps on a 22 AWG pigtail that was meant for a sensor. Match the lever rating to the gauge.</p>
+    <h2>24 V is not magic. It is half the current.</h2>
+    <p>Same wattage at 24 V draws half the amps. Half the amps is half the drop in the same wire. That is why shop lighting jumped voltage. If you are still on 12 V because the leftover reel is 12 V, you pay in copper. Do not mix 12 V and 24 V on one driver. The driver voltage is the strip voltage. A 24 V brick on a 12 V reel is a short funeral.</p>
+    <h2>How you prove it</h2>
+    <p>Two meter probes. Supply output versus last solder pad, both under the real load, not with the strip unplugged. If you only have one meter, clip a long lead on the far ground and measure back. Do not trust the LED color as a voltmeter. Warm white shifts when starved. So does RGB when the common rail sags and the channels fight.</p>
+    <p>If the supply itself is sagging at the terminals, that is a different article. Fix the brick or the load before you buy more wire. A supply in current limit looks like voltage drop all the way down the run.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Write load current from watts divided by voltage, not from hope.</li>
+      <li>Count the round-trip length. Size wire so I × R stays under about 0.5 V on lighting.</li>
+      <li>Inject power at both ends on anything longer than a couple of meters.</li>
+      <li>Solder power leads. Treat clip connectors as temporary.</li>
+      <li>Measure the far pad under load. If it is down more than a volt, add copper, not another cheap strip.</li>
+    </ol>
+    <p>Copper is cheaper than a second reel and a weekend of blaming firmware on an addressable run that is just hungry. Run the numbers. Then run the wire.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

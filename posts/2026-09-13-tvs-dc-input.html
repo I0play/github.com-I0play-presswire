@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A barrel jack with no TVS is a MOSFET lottery. Clamp the spike at the connector. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 13, 2026 · Electronics · ~8 minute read</p>
+    <h1>That 12 V jack is not polite. Hot-plug it once and the MOSFET dies before the MCU finishes booting.</h1>
+    <p>You built a tidy 12 V board. Fuse on the positive. Bulk cap after the jack. Buck to 5 V. It ran on the bench for a week. Then you yanked the barrel, plugged it back in while the supply was live, and the input FET shorted. The supply did not lie. The cable did. A live DC cable is an inductor. When the plug makes and breaks, that inductance dumps a spike into the first semiconductor that looks convenient. A TVS diode across the jack is the cheap insurance you skip until the board smells like toast.</p>
+    <p>This is not ESD theater. This is inductive kick from two meters of zip cord and a sloppy connector. Treat the jack like a door that slams.</p>
+    <h2>What actually hits the rail</h2>
+    <p>A 12 V wall wart is not a stiff lab supply. The output cable has inductance. The plug has bounce. The first contact charges the input cap through that inductance. Voltage overshoots. The second bounce opens the circuit and the inductance slams the rail again. Scope the jack pin on a 20 MHz probe with the ground spring, not a six-inch alligator lead. You will see 20 to 40 V peaks on a “12 V” plug if the cap is small and there is no clamp.</p>
+    <p>Automotive and e-bike harnesses are worse. Load dump and jump-start are real numbers, not forum lore. A part rated 20 V absolute max on a 12 V nominal rail is a dare. Give the silicon headroom or stop pretending the world is a clean bench PSU.</p>
+    <h2>Pick the clamp like an adult</h2>
+    <p>A unidirectional TVS for a DC rail. Cathode to positive, anode to the chassis or power ground right at the connector. Standoff voltage above the highest normal operating voltage. For a 12 V lead-acid or sealed pack that sits at 14.4 V on charge, a 15 to 18 V standoff is the usual window. Breakdown a few volts above that. Clamping voltage under the surge current must stay under the absolute max of the FET, regulator, or electrolytic you are protecting. Read the 8/20 µs or 10/1000 µs number, not the pretty “24 V” marketing line.</p>
+    <p>SMAJ and SMBJ packages are the workbench default. SMAJ is fine for a barrel jack and a wall wart. SMBJ if the cable is long or the source can dump real energy. Do not use a signal ESD diode from a USB kit and call it a power clamp. Those parts eat picoseconds of finger zap. They vaporize on a cable surge.</p>
+    <p>Polarity matters. A unidirectional TVS on a DC rail conducts like a diode if you reverse the supply. That is a feature if you also want cheap reverse-protection current into the fuse. Pair it with the fuse on the positive, before the TVS and the bulk cap. Fuse blows, TVS survives, board lives. Reverse a supply into an unprotected buck and you rewrite the layout with smoke.</p>
+    <h2>Where it sits on the board</h2>
+    <p>At the connector. Not three inches downstream after a skinny trace. The loop is jack positive, TVS, jack ground. Short. Fat. The fuse sits between the jack positive and the TVS if you want the fuse to open on a dead shorted clamp. Some designs put the TVS first so a reverse plug does not wait on the fuse element. Either way, do not hide the clamp behind a ferrite and a 10 ohm resistor and then wonder why the FET still died. Series impedance before the clamp is how the spike climbs.</p>
+    <p>Bulk capacitance after the TVS helps. A few hundred microfarads of electrolytic plus a ceramic is a reservoir and a slower edge. It is not a substitute for the clamp. Caps have ESL. They do not eat a 40 V needle the way a TVS does.</p>
+    <h2>The parts people confuse</h2>
+    <p>A MOV is for AC mains and chunky surges. It ages. It is the wrong shape for a 12 V barrel. A gas tube is for telecom lightning. An RC snubber across a coil is for the coil, not the incoming jack. A 1N4007 is a rectifier, not a surge clamp. A zener can work at low energy if you size the pulse and the heat. A real TVS is a zener built to take a punch. Use the part that admits what it is.</p>
+    <p>Series input protection is a different job. A P-FET reverse-polarity block, an ideal-diode controller, or a beefy Schottky. Do that too if the plug can go in backwards. The TVS is the spike. The FET is the idiot-proofing. They are not the same schematic symbol no matter how fast you draw.</p>
+    <h2>How you prove it</h2>
+    <p>Hot-plug the live cable ten times with a scope on the rail at the first IC pin. If the peak stays under the abs-max with margin, you are in the game. If the trace kisses 30 V on a 20 V FET, add the TVS or a bigger cap and test again. A current-limited bench supply is not a substitute for a real wall wart and a real cable. The inductance lives in the cord.</p>
+    <p>After a suspected event, measure the TVS. A shorted clamp is a fuse that did its job and died. A leaky clamp that sits at a few hundred ohms is a part that almost made it. Replace it. Do not leave a warm SMB on the board because “it still runs.”</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Fuse the positive at the jack. Size it to the wire, not the fantasy load.</li>
+      <li>Unidirectional TVS across the rail at the connector. Standoff above charge voltage, clamp under abs-max.</li>
+      <li>SMAJ or SMBJ for DC jacks. Keep signal ESD diodes on data lines where they belong.</li>
+      <li>Bulk cap after the clamp. Short loop. No skinny trace between jack and TVS.</li>
+      <li>Hot-plug on a scope before you ship. If the peak is ugly, the layout is ugly.</li>
+    </ol>
+    <p>A clean 12 V schematic without a clamp is a lab drawing. The cable is part of the circuit the second you plug it in. Put the diode where the spike lands, or keep a bag of input FETs on the shelf. Your call.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

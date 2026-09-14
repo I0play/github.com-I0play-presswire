@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>An electrolytic is a one-way valve with a vent. Reverse it and it cooks. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 14, 2026 · Electronics · ~8 minute read</p>
+    <h1>That aluminum can is not a ceramic. Reverse the polarity and it vents before the firmware boots.</h1>
+    <p>You stuffed a 470 µF on the 12 V rail. Stripe toward ground. Or so you thought. The board hummed, the can got warm, and a minute later the top scored itself and leaked brown chemistry onto the silk. An aluminum electrolytic is a polarized wet part. The oxide film is the dielectric. Reverse voltage eats that film, current climbs, heat cooks the electrolyte, pressure opens the vent. That is not a mystery. That is the datasheet with a smell.</p>
+    <p>Treat the stripe like a warning label. Treat the vent like a planned failure path. Do not treat a cheap can like a 50 V ceramic you can drop in any way that fits the holes.</p>
+    <h2>How the part actually works</h2>
+    <p>The anode is aluminum foil with a grown oxide. The cathode is electrolyte and a second foil. Forward voltage keeps the oxide healthy. Reverse voltage of even a volt or two starts to dissolve it. ESR drops the wrong way, leakage spikes, the can becomes a heater. A few seconds on a stiff 12 V supply is enough to bulge a small radial. A few minutes is enough to pop it.</p>
+    <p>The scored cross on the top is not decoration. It is a weak line so the can splits instead of becoming a missile. If you see a swollen dome, brown crust, or a hiss, the part is done. Capacitance may still read on a cheap meter. ESR will be ugly. Leakage will be uglier. Replace it. Do not “form it back” on a board you care about.</p>
+    <h2>Read the can before you solder</h2>
+    <p>Negative stripe on most radials. Long lead is positive on a new part. The board should have a hatched pad or a “−” mark. Trust the board only if you drew it. Clone layouts copy mistakes. If the silk and the schematic disagree, follow the schematic and fix the silk.</p>
+    <p>Voltage rating is a ceiling, not a target. A 16 V cap on a 12 V rail that charges to 14.4 V is already living on the edge when the ambient is hot. 25 V is the adult choice on 12 V. 35 V if the rail rings or the enclosure cooks. Derate temperature the same way. A 105 °C part lasts longer than an 85 °C grocery-bin special next to a linear regulator.</p>
+    <p>ESR matters as much as microfarads. A bulk cap after a buck or on a motor rail is a reservoir and a snubber. High ESR means the ripple lives on the copper. If the rail sings and the can is warm with correct polarity, you bought the wrong series. Low-ESR or polymer for switching nodes. Plain general-purpose for slow bulk after a linear. Do not mix them by accident and then rewrite the firmware.</p>
+    <h2>Where people blow them</h2>
+    <p>Hand-soldered proto boards with no polarity mark. Recycled cans with clipped leads the same length. AC-coupled audio ideas that put an electrolytic across a signal that swings both ways — that job is two caps back-to-back or a bipolar electrolytic, not a prayer. Input bulk on a barrel jack with the stripe to VCC because the layout was mirrored. That last one is a classic. Scope is optional. Nose is not.</p>
+    <p>Series strings for higher voltage need balance resistors. One cap in a string that leaks more than its brothers eats reverse or overvoltage when the rail settles. If you do not want to think about that, buy one cap with the right voltage.</p>
+    <h2>The meter lies if you let it</h2>
+    <p>A two-wire capacitance mode on a cheap DMM will say 440 µF on a dying 470. That number is not health. Health is ESR at the frequency the rail cares about, leakage at working voltage, and a can that is still round. An ESR meter or a scope on the rail under load beats a parts-bin raffle. Warm can, high ripple, random resets: change the bulk before you change the code.</p>
+    <p>After a reverse event, inspect neighbors. Electrolyte is conductive and corrosive. Clean the board. Check the next semiconductor downstream. A shorted cap can take a regulator with it. A vented cap can leave a film that looks like flux and behaves like a resistor.</p>
+    <h2>Ceramics are not a free swap</h2>
+    <p>A 22 µF ceramic on the same net is local energy, not ten years of bulk. Ceramics drop capacitance with DC bias. A 22 µF 16 V X5R on a 12 V rail is not 22 µF. Electrolytics sag with age and heat. Use both: ceramic on the pin, electrolytic or polymer at the jack. That is the whole lecture.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Stripe to the negative. Long lead is positive on a new radial. Confirm silk against the schematic.</li>
+      <li>Voltage well above the highest charge voltage. 25 V on a 12 V rail is not waste.</li>
+      <li>105 °C and a known series near heat. Cheap 85 °C cans die first.</li>
+      <li>Swollen top, crust, or hiss means replace and clean. Do not reform it in place.</li>
+      <li>Measure ripple under load. If the can is the heater, ESR or polarity is wrong.</li>
+    </ol>
+    <p>A polarized can is a bargain when you respect the arrow. It is a smoke bomb when you do not. Mark the board, derate the voltage, and throw away anything that already grew a dome. The vent is not a suggestion.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

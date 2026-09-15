@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The 10 A jack is not a default. Your meter fuse is already dead. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 15, 2026 · Electronics · ~8 minute read</p>
+    <h1>That meter reads 0.00 A because you blew the mA fuse last month and never moved the lead back.</h1>
+    <p>You clipped the red lead into the 10 A jack “to be safe.” Then you left it there for voltage. Then you used the mA jack on a motor stall. Then the display said zero and you believed the circuit was off. A handheld DMM is three different instruments sharing a screen. Current mode puts a shunt in series with the circuit. Voltage mode expects a high-impedance probe. Mix the jacks and you either short the rail through a fuse or you measure nothing and call it a feature.</p>
+    <p>The fuse is not optional jewelry. It is the only thing between a wrong jack and a melted banana plug. If current reads zero on a live load, stop trusting the number. Open the back. Look at the glass.</p>
+    <h2>What the jacks actually do</h2>
+    <p>COM is the return. The V/Ω jack is high impedance for voltage, resistance, continuity, and diode. The mA/μA jack is a small shunt plus a fast fuse, usually 400 mA or 500 mA, sometimes 800 mA. The 10 A or 20 A jack is a fat shunt and a slow, expensive fuse — or no fuse at all on cheap meters. Read the print next to the hole before you stuff a lead in it.</p>
+    <p>Current measurement is always in series. Break the circuit. Red lead on the supply side of the break, COM on the load, or the other way if you like negative numbers. Parallel current measurement is a short. That is how people weld probes to a car battery and then blame the brand.</p>
+    <h2>The classic ways to kill it</h2>
+    <p>Leave the red lead in 10 A and poke a 12 V rail while the dial is on volts. Some meters still route the 10 A jack only through the shunt. Some cheap ones let you short the supply through copper and a banana. Either way you get heat and a story.</p>
+    <p>Measure a solenoid inrush on the mA range. Stall current on a DC motor is not 80 mA. It is amps for a blink. The fast fuse does its job. You keep the leads there because changing jacks is annoying. Next week every current reading is a lie.</p>
+    <p>Use the meter as a jumper because both hands were busy. The leads are not welding cable. The 10 A rating is a number for a few minutes, not a permanent feeder. If the wire gets warm, you are the fuse.</p>
+    <h2>Replace the right fuse or stop measuring</h2>
+    <p>The mA fuse is almost always a fast-acting ceramic, 250 V or 600 V, sized to the jack. The 10 A fuse is larger, often 10 A / 600 V ceramic with a specific length. A glass 5×20 from a junk drawer is not a substitute. It can explode instead of clearing. A foil wrapper “just for a second” is how the PCB trace becomes the fuse and the meter becomes a brick.</p>
+    <p>Buy the part number in the manual. If there is no manual, measure the body and match voltage and speed, not just amps. Install it so the holder actually grips. A loose fuse is an intermittent zero that only shows up when you lean on the bench.</p>
+    <h2>Measure current without lying to yourself</h2>
+    <p>If you need milliamps, use the mA jack and watch the range. If the meter has auto-range current, still start with a guess. If you need amps, use the 10 A jack for the test, then move the lead back to V before you put the meter down. That last step is the whole religion.</p>
+    <p>A clamp meter around one conductor is safer for high current. DC clamps need a Hall sensor and a zero button. Clamp both conductors and you measure zero because the fields cancel. People do this on a zip cord and then redesign the supply.</p>
+    <p>A shunt on the board plus a voltage range is how grown benches do it. 10 mΩ gives 10 mV per amp. Kelvin it if you care. Do not use the meter as a permanent shunt in a product.</p>
+    <h2>Voltage mode after a current mistake</h2>
+    <p>If you just blew a fuse, voltage and continuity on the V jack should still work. If they do not, you cooked more than glass. Smell the input resistors. Look for a lifted pad at the jack. Cheap meters die at the selector wafer. At that point the tool is a paperweight with a backlight.</p>
+    <p>Confirm voltage on a known cell after every fuse change. Confirm current on a known resistor and a bench supply with the current limit set. If 10 V across 100 Ω does not read about 100 mA, the new fuse is sitting wrong or you are still in the 10 A jack.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Red lead lives in the V jack unless you are mid-measurement on current. Move it back every time.</li>
+      <li>Current is series. Break the wire. Do not park the meter across a supply in current mode.</li>
+      <li>mA jack for small stuff. 10 A jack for motors and lamps. Guess high, then drop the range.</li>
+      <li>Zero current on a live load means open the case. Replace the specified ceramic fuse, not kitchen foil.</li>
+      <li>After the fix, test volts on a cell and current on a resistor. Then put the lead back in V.</li>
+    </ol>
+    <p>A meter that always lives in the 10 A hole is a voltage probe with a shunt wasting time in the loop. A blown mA fuse is silent. Check the glass when the number is too perfect. The display will not apologize.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

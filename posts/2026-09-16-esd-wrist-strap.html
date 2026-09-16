@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A dangling wrist strap is jewelry. Bond it or stop pretending you are grounded. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 16, 2026 · Electronics · ~8 minute read</p>
+    <h1>That blue strap is not magic. If the alligator clip is hanging in air, you are still a capacitor.</h1>
+    <p>You put the band on because a forum said MOSFETs hate you. Then you clipped the cord to the metal rim of a plastic bench. Then you touched a bag that was never static-dissipative. Then a perfectly good MCU died on the third insertion and you blamed the programmer.</p>
+    <p>ESD control is a path, not a costume. Your body stores charge. A board on a foam sheet stores charge. A cheap “anti-static” bag that crinkles like a chip bag is a Faraday cage only if it is actually metallized and closed. A strap that is not bonded to earth through a resistor is a bracelet.</p>
+    <h2>What has to be common</h2>
+    <p>You, the mat, and the chassis of the device under test need to sit at the same potential before parts come out of a bag. Earth is convenient. A common node is required. If the bench is wood and the supply is a two-prong wall wart, there is no automatic ground. You have to build one.</p>
+    <p>A 1 MΩ resistor in the strap cord is not optional flavor. It dumps you slowly so a live 120 V fault does not use your wrist as a jumper. Some bargain cords skip it. Measure the cord end-to-end with a meter on megohms. Open is useless. A few ohms is a safety problem. Around a megohm is the part doing its job.</p>
+    <h2>The mat is not a tablecloth</h2>
+    <p>A real dissipative mat is a high-resistance sheet with a snap. Bond the snap to the same ground point as the strap. Do not park the board on painted steel and call it a day. Paint is an insulator. Do not use a shiny metallic bag as a work surface. It can short pins and still not bleed charge the way a dissipative layer does.</p>
+    <p>Pink polyethylene peanut foam is not a mat. It is packaging that maybe reduced charge when it was new. After a year of coffee it is just foam. If the surface reads open to the snap, it is furniture.</p>
+    <h2>Where people fake the bond</h2>
+    <p>Clip to a painted instrument case. Clip to a USB shell that is floating behind a plastic-bodied hub. Clip to the ground of a battery pack that is sitting on the same wood as you. None of those are earth unless you verified continuity to the building ground or to a known common.</p>
+    <p>The correct cheap setup: one banana jack or binding post on the bench. Strap to that. Mat snap to that. Scope and supply earths to that if they have them. A three-prong supply already bonded to the outlet is a decent node — check the tab to the outlet ground with a meter before you trust it.</p>
+    <p>Do not tie the strap to a water pipe you have not tested. Do not tie it to a gas line. Do not drill a screw into a random conduit and assume the electrician bonded it last decade.</p>
+    <h2>Handling parts like they can die</h2>
+    <p>Leave MOSFETs, CMOS, and LED drivers in the tube or the shielding bag until the iron is hot and the strap is on. Touch the bag to the mat before you open it. Touch the chassis before you seat a module. One hand on the metal, one hand on the part. That is not theater. That equalizes you and the board.</p>
+    <p>Hot-plug a module into a live 3.3 V rail and you can kill it with inrush even if ESD is perfect. Power down to swap. If you must live-probe, ground the clip first, tip second. The other order is a spark with a name.</p>
+    <h2>How to know the strap is not a lie</h2>
+    <p>A dedicated wrist-strap tester is a box with a plate and a pass lamp. No box? Meter the cord. Wear the band on bare skin, not over a hoodie cuff. Sweat helps. Lotion films and dry winter skin raise contact resistance. If the metal plate on the band is green and crusty, clean it. A dirty snap is an open circuit with branding.</p>
+    <p>If you only work on through-hole analog and 7805s, you can get away with sloppy handling for a long time. That luck expires the first time you buy a tray of tiny FETs. Treat every bag like the part is expensive. Some of them are.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Measure the strap cord. You want about 1 MΩ, not open and not a dead short.</li>
+      <li>Bond strap, mat snap, and instrument earth to one verified node.</li>
+      <li>Band on bare skin. Clip attached before the bag opens.</li>
+      <li>Open shielding bags on the mat. Do not use pink foam as a work surface.</li>
+      <li>Power down to swap boards. Chassis first, part second.</li>
+    </ol>
+    <p>A strap that never gets clipped is a mood. A mat with no snap wire is a mouse pad. Bond the three things that touch the silicon, then pick up the iron.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

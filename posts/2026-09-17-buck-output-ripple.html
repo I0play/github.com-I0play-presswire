@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>A buck with one electrolytic on the output is a radio. Add ceramics or watch the MCU reset. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 17, 2026 · Electronics · ~8 minute read</p>
+    <h1>That buck module is not clean 5 V. The ripple is a sawtooth and your ADC is reading the switcher, not the sensor.</h1>
+    <p>You bought a postage-stamp converter, soldered two wires, and called it a power supply. The meter says 5.02 V. The MCU resets when the radio transmits. The analog pin wanders. You rewrite the sketch. The rail was never quiet.</p>
+    <p>A buck is a switch and an inductor. Current in the inductor ramps. Output capacitors have to eat that AC. One fat electrolytic an inch away is a low-frequency reservoir with miserable ESR at hundreds of kilohertz. The switcher does not care about your average voltage. It cares about the loop at the pins.</p>
+    <h2>What you are actually measuring</h2>
+    <p>A DMM on DC is a liar here. It averages. Ripple of 200 mV peak-to-peak still prints as 5.00. Scope the rail at the load pin, AC couple, 20 MHz bandwidth limit off for a first look, then on so you can separate switching hash from probe antenna. Ground the tip with a spring, not a four-inch alligator lead that picks up the inductor field.</p>
+    <p>You will see a triangle at the switching frequency plus spikes at the edges. The triangle is capacitor ESR and ESL doing their job poorly. The spikes are layout and probe. If the triangle is tens of millivolts at the chip, you are fine for most digital. If it is hundreds, the brownout detector and the ADC reference are riding a boat.</p>
+    <h2>Ceramics do the high-frequency work</h2>
+    <p>Put 10 µF to 22 µF of X5R or X7R right at the converter output pads, then another 100 nF and 1 µF at the MCU VCC pin. Bulk electrolytic or polymer still helps hold up load steps. It does not replace the ceramics. Voltage derate the ceramic. A 6.3 V 10 µF part on a 5 V rail has already lost a chunk of capacitance. Use 16 V or 25 V parts and stop arguing with the datasheet curve.</p>
+    <p>Do not series two ceramics “through a ferrite” and then forget a path for DC. A bead on the 5 V feed to analog is fine if you park 10 µF after the bead at the analog island. A bead with no cap after it is an inductor looking for a ringing partner.</p>
+    <h2>The module layout is not your layout</h2>
+    <p>Those blue bricks with the shielded inductor are decent if you treat the output pads as the start of a new board, not the finish. Short, wide traces to the first ceramic. Ground the cap to the same ground pour as the module. A flying jumper to a protoboard rail adds inductance you will see on the scope.</p>
+    <p>If you need 3.3 V from 12 V, do not stack a linear after a filthy buck and assume the 1117 filters everything. The linear rejects some ripple. It does not eat 400 kHz spikes with a long input lead. Ceramic at the linear input, ceramic at the linear output, then the MCU cap. Three cheap parts. One less “haunted I2C” thread.</p>
+    <h2>Load steps are a different crime</h2>
+    <p>A radio or motor that slams 300 mA for a millisecond will dip the rail even if ripple at idle looks pretty. That is bulk and loop inductance. Polymer or a real electrolytic near the converter, ceramics at the load. If the module has a soft-start pin, use it so the inrush does not fold the upstream supply.</p>
+    <p>Current limit on the bench PSU while you debug. A buck that hiccups into a short will cook a protoboard trace and still look like “5 V” between retries.</p>
+    <h2>When the module itself is the problem</h2>
+    <p>Some no-name converters skip input ceramics. The input loop rings and the output inherits the mess. 10 µF ceramic on VIN next to the module, plus whatever bulk you already had. If the inductor sings and the output wanders with load, the chip is unstable into your cap combination. Read the recommended range. Too much ceramic with zero ESR can make a current-mode buck unhappy. A small electrolytic in parallel is not nostalgia. It is damping.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Scope the rail at the load pin. Ignore the DMM average.</li>
+      <li>Ceramic at the buck output pads. Another ceramic on the MCU pin.</li>
+      <li>Derate ceramic voltage. 6.3 V parts on 5 V are already smaller than the print.</li>
+      <li>Keep the first cap loop short. Flying jumpers are inductors.</li>
+      <li>Bulk for load steps. A bead only if there is a cap after it.</li>
+    </ol>
+    <p>A buck is a switcher, not a battery. Feed it input ceramic, give the output a fast cap it can actually use, and stop debugging firmware on a 200 mV triangle.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

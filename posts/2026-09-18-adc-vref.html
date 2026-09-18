@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your ADC is not broken. The reference is bouncing and the pin is a microphone. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 18, 2026 · Electronics · ~8 minute read</p>
+    <h1>That analog reading is not a sensor. It is the 5 V rail, a floating pin, and every motor spark on the bench.</h1>
+    <p>You print the ADC. It walks. You add delay. It still walks. You blame the library. The converter is doing exactly what you asked: it is comparing a pin to a reference that is also the noisy supply, on a pin that you left hanging between reads.</p>
+    <p>An ADC is a ratio. Counts equal Vin over Vref times full scale. If Vref is AVCC and AVCC is a buck with 80 mV of triangle plus USB sag when the radio wakes, every count is a lie even if the sensor is a rock. Fix the reference and the pin. Then argue with firmware.</p>
+    <h2>Stop using the rail as gospel</h2>
+    <p>Most hobby boards default the ADC to VCC. That is convenient. It is also how you measure your power supply instead of the thermistor. A 10-bit part on a 5.00 V rail is about 4.9 mV per count. Drop the rail 100 mV and every reading shifts twenty counts with no change at the probe.</p>
+    <p>Use the internal bandgap when you can. On AVR that is the 1.1 V reference. On STM32 and ESP32 you get an internal reference you can read against VCC, or an external VREF pin. If you need accuracy across temperature, park a 2.5 V or 3.0 V shunt reference on VREF and treat AVCC as digital food only. Decouple the ref pin with the datasheet cap, usually 100 nF right at the pin. A flying jumper to a “precision” module three inches away is an antenna.</p>
+    <p>Do not share the analog reference pour with motor return current. Star that ground at one point. The last article on star grounds was not poetry.</p>
+    <h2>A floating analog pin is a radio</h2>
+    <p>You mux the ADC across four channels and only drive two of them. The unused channels sit high-Z. They pick up the fluorescent ballast, the soldering iron, and the PWM on the next pin. Then the mux visits them and your “average” includes garbage. Tie unused analog pins to ground, or configure them as outputs, or keep a resistor to ground so they cannot float.</p>
+    <p>The channel you do use still needs a source impedance the sample capacitor can eat. A 10 kΩ thermistor is fine. A 100 kΩ divider with a long wire is not. Put 1 nF to 10 nF from the pin to analog ground at the chip. That cap is the bucket the ADC actually samples. Without it the sample-and-hold sags during the acquisition window and you get a value that depends on how many other channels you scanned first.</p>
+    <p>If the sensor is far away, do not run a single conductor next to a motor lead. Twisted pair, analog ground with the signal, shield tied at one end. A ribbon cable with 5 V PWM two traces over is a coupling demo.</p>
+    <h2>Take more than one sample and throw the first away</h2>
+    <p>After you switch mux channels, the leftover charge on the sample cap is from the last pin. The first conversion after a switch is often junk. Discard it. Average eight. If you need speed, lower source impedance instead of averaging noise into a pretty number.</p>
+    <p>Oversampling does not fix a moving reference. Sixteen samples of a bouncing AVCC is a smoother lie. Scope AVCC AC-coupled at the analog pin while you convert. If you see the switcher triangle, ceramics on the analog island, not another delay() in the sketch.</p>
+    <h2>Ratiometric is allowed when you mean it</h2>
+    <p>A pot or a divider powered from the same rail the ADC uses as Vref is ratiometric. Counts stay put when the rail sags. That is the one case where AVCC as reference is correct. A thermistor to a fixed voltage reference is not ratiometric with AVCC. A current sensor whose output is 2.5 V ± something on a 5 V rail is also not. Match the topology to the math or stop being surprised.</p>
+    <p>Calibration is a known voltage, not a prayer. A decent shunt reference or a metered bench supply into the pin. Write the offset and gain down. Do it warm and cold if the part will live in a shed.</p>
+    <h2>The probe lies too</h2>
+    <p>A 10× scope probe on an analog pin adds a few picofarads and a ground lead that loops the universe. Fine for hunting 100 mV of hash. Useless for arguing about 2 mV. Trust the converter against a known DC once the rail is quiet, then leave the probe off.</p>
+    <p>If the reading jumps only when you touch the header, you have a floating node or a missing ground on the sensor module. Many three-pin “analog” boards expect 5 V, ground, and signal, and people power them from 3.3 V while reading 5 V full-scale in code. The numbers will be cute. They will not be true.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Decide if the measurement is ratiometric. If not, stop using AVCC as Vref.</li>
+      <li>Cap the VREF pin. Cap the analog pin to analog ground.</li>
+      <li>Tie unused analog channels down. Discard the first sample after a mux change.</li>
+      <li>Keep sensor return off the motor copper. Twist the run.</li>
+      <li>Scope the analog rail while converting. A pretty average of hash is still hash.</li>
+    </ol>
+    <p>The ADC is a comparator with a memory. Give it a stiff reference, a pin that is not an antenna, and a source it can sample. Then the sketch can stop being a séance.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>That UART is not haunted. Your baud is 3% off and the last byte is garbage. — The Bench</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="logo" href="/">The Bench</a>
+  </header>
+  <article class="post">
+    <p class="meta">Sep 19, 2026 · Electronics · ~8 minute read</p>
+    <h1>That UART is not haunted. Your baud is 3% off and the last byte is garbage.</h1>
+    <p>The first three characters print. The fourth is a rune. You swap cables. You swap libraries. You add delays. The scope still shows a start bit that is a little fat and a stop bit that lands in the next bit cell. Serial is a clock with no clock wire. If both ends do not agree on the width of a bit, the sampling point walks off the data by the end of the frame.</p>
+    <p>Most MCUs generate baud from a divider on a clock that is not a nice multiple of 115200. Internal RC oscillators wander with temperature and VCC. USB-UART dongles run off their own crystal. Put those two in a room and you get a conversation that starts polite and ends in noise. Fix the clocks. Then argue with firmware.</p>
+    <h2>Bit time is not a suggestion</h2>
+    <p>A UART samples near the middle of each bit. Eight data bits plus start and stop is ten cells. A 3% error is 0.3 bit by the stop. That is enough to read the last data bit as the stop, or the stop as the next start. Short packets look fine. A 64-byte dump looks cursed. People then invent “UART needs delays between bytes.” No. The divider is wrong.</p>
+    <p>Do the math on the actual clock. Baud equals f_clk divided by (divider times oversample). AVR classic is often 16	imes. STM32 and ESP32 let you pick 16	imes or 8	imes. If the remainder is ugly, pick a baud the clock can actually hit. 250000 and 1M from a 16 MHz clock are exact. 115200 from 16 MHz is not. 57600 from an 8 MHz RC is a coin flip after the chip warms up.</p>
+    <p>Read the error table in the datasheet. Under 1% is boring and good. Over 2% against a crystal peer will bite you on long frames. Against another RC oscillator, both wander, and the sum is what kills you.</p>
+    <h2>Internal oscillators lie when they get warm</h2>
+    <p>Factory-calibrated RC is “good enough for 9600.” It is not a timing reference. Heat the board with a heat gun for ten seconds and watch the bit width move on the scope. A USB adapter on the other end does not move with it. That is your flaky GPS sentence that only fails in the car in July.</p>
+    <p>If the part has a crystal or a competent ceramic resonator on the UART clock domain, use it. If the part has an internal PLL that locks to USB SOF, that clock is usually better than the raw RC. ESP32 UART from the APB clock is fine if you set the divider for the clock you actually enabled, not the clock you assumed from a blog post written for a different module.</p>
+    <p>Do not mix 5 V TTL “Arduino serial” with RS-232 voltage swings and call it a cable problem. A MAX232 or a real USB-UART belongs between those worlds. A resistor divider is not a transceiver.</p>
+    <h2>Scope the bit, not the string</h2>
+    <p>Hook a scope or a logic analyzer on TX. Measure start-bit width. Period should be 1/baud. At 115200 that is 8.68 µs. If you measure 8.9 µs you already know why byte 12 is trash. Measure ten bits and divide. Do it at room temp and after five minutes of run.</p>
+    <p>If the line idles low, you have inverted idle or a fried pin or a device that speaks inverted UART. Smart modules and some camera boards do that. Software invert or a transistor, not another library fork.</p>
+    <p>Ground the two boards together with a real wire. A USB adapter ground and a floating buck return is a common-mode mess that looks like baud error. One ground wire, then measure. If the edges are triangular, the pull-up is weak or the cable is a satellite. Short the run or buffer it.</p>
+    <h2>Flow control is not optional when the buffer is 64 bytes</h2>
+    <p>You can nail baud and still drop characters because the ISR is late. Hardware RTS/CTS exists. Use it when the other end supports it. If not, you get to size the ring buffer and stop printing inside the receive interrupt. “It works in the serial monitor at 9600” is not a protocol.</p>
+    <p>9-bit mode, parity, and 2 stop bits are not decorations. Match both ends. A device sending even parity into 8N1 will look like occasional framing errors. Framing error means the stop bit was not a stop bit. That is baud, invert, or a collision on a shared line. It is not a compiler flag.</p>
+    <h2>Cheap USB-UART adapters have opinions</h2>
+    <p>Some clones sample with their own sloppy clock. Some enumerate and then change baud only after a DTR toggle. Some invert CTS. If two adapters talk to each other fine and the MCU does not, the MCU clock is the suspect. If every MCU looks bad against one dongle, throw the dongle.</p>
+    <p>Do not stack USB hubs and a three-meter unshielded jumper and then declare 921600 “unreliable.” That baud wants a short pair and clean edges. Drop to a baud the cable can carry or use differential. RS-485 is the adult version of this conversation and it still needs a matching baud.</p>
+    <h2>A bench checklist</h2>
+    <ol>
+      <li>Compute the real divider error for the clock you actually selected. Pick a baud the math likes.</li>
+      <li>Scope start-bit width at cold and warm. If it walks, stop using the RC as a UART clock.</li>
+      <li>Common ground first. Then argue about invert and voltage levels.</li>
+      <li>Match data bits, parity, stop bits. Framing errors are physics, not a vibe.</li>
+      <li>If long frames fail and short ones pass, it is almost always accumulated baud error. Fix the clock, do not sprinkle delay(1).</li>
+    </ol>
+    <p>Serial is two stopwatches hoping they match. Give both ends a clock that does not drift a few percent, measure the bit on a scope once, and the runes go away. The library was never the problem.</p>
+    <hr />
+    <p><a href="/">Back to The Bench</a></p>
+  </article>
+</body>
+</html>
